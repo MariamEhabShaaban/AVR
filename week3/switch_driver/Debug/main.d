@@ -1,10 +1,10 @@
-main.o main.o: ../main.c ../stdTypes.h ../errorStates.h ../DIO_int.h \
-  ../DIO_priv.h
+main.o main.o: ../main.c ../stdTypes.h ../errorStates.h ../switch_int.h \
+  ../switch_priv.h
 
 ../stdTypes.h:
 
 ../errorStates.h:
 
-../DIO_int.h:
+../switch_int.h:
 
-../DIO_priv.h:
+../switch_priv.h:

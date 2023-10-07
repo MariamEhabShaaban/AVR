@@ -30,41 +30,50 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 LSS += \
-7seg_driver.lss \
+SEV_SEG_DRIVER.lss \
+
+FLASH_IMAGE += \
+SEV_SEG_DRIVER.hex \
 
 SIZEDUMMY += \
 sizedummy \
 
 
 # All Target
-all: 7seg_driver.elf secondary-outputs
+all: SEV_SEG_DRIVER.elf secondary-outputs
 
 # Tool invocations
-7seg_driver.elf: $(OBJS) $(USER_OBJS)
+SEV_SEG_DRIVER.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: AVR C Linker'
-	avr-gcc -Wl,-Map,7seg_driver.map -mmcu=atmega16 -o "7seg_driver.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	avr-gcc -Wl,-Map,SEV_SEG_DRIVER.map -mmcu=atmega32 -o "SEV_SEG_DRIVER.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-7seg_driver.lss: 7seg_driver.elf
+SEV_SEG_DRIVER.lss: SEV_SEG_DRIVER.elf
 	@echo 'Invoking: AVR Create Extended Listing'
-	-avr-objdump -h -S 7seg_driver.elf  >"7seg_driver.lss"
+	-avr-objdump -h -S SEV_SEG_DRIVER.elf  >"SEV_SEG_DRIVER.lss"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-sizedummy: 7seg_driver.elf
+SEV_SEG_DRIVER.hex: SEV_SEG_DRIVER.elf
+	@echo 'Create Flash image (ihex format)'
+	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex SEV_SEG_DRIVER.elf  "SEV_SEG_DRIVER.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+sizedummy: SEV_SEG_DRIVER.elf
 	@echo 'Invoking: Print Size'
-	-avr-size --format=avr --mcu=atmega16 7seg_driver.elf
+	-avr-size --format=avr --mcu=atmega32 SEV_SEG_DRIVER.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) 7seg_driver.elf
+	-$(RM) $(FLASH_IMAGE)$(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) SEV_SEG_DRIVER.elf
 	-@echo ' '
 
-secondary-outputs: $(LSS) $(SIZEDUMMY)
+secondary-outputs: $(LSS) $(FLASH_IMAGE) $(SIZEDUMMY)
 
 .PHONY: all clean dependents
 .SECONDARY:

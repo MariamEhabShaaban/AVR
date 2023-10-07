@@ -4,16 +4,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../DIO_prog.c \
-../main.c 
+../main.c \
+../switch_prog.c 
 
 OBJS += \
-./DIO_prog.o \
-./main.o 
+./main.o \
+./switch_prog.o 
 
 C_DEPS += \
-./DIO_prog.d \
-./main.d 
+./main.d \
+./switch_prog.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

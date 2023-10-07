@@ -1,6 +1,6 @@
 #include "stdTypes.h"
 #include "errorStates.h"
-#include "DIO_int.h"
+#include "switch_int.h"
 #include <util/delay.h>
 int main(void){
 	SWITCH_enuint();
@@ -25,4 +25,3 @@ int main(void){
 
 	return 0;
 }
-

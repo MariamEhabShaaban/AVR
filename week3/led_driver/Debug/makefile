@@ -30,47 +30,47 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 LSS += \
-led_driver.lss \
+LED_DRIVER_.lss \
 
 FLASH_IMAGE += \
-led_driver.hex \
+LED_DRIVER_.hex \
 
 SIZEDUMMY += \
 sizedummy \
 
 
 # All Target
-all: led_driver.elf secondary-outputs
+all: LED_DRIVER_.elf secondary-outputs
 
 # Tool invocations
-led_driver.elf: $(OBJS) $(USER_OBJS)
+LED_DRIVER_.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: AVR C Linker'
-	avr-gcc -Wl,-Map,led_driver.map -mmcu=atmega32 -o "led_driver.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	avr-gcc -Wl,-Map,LED_DRIVER_.map -mmcu=atmega32 -o "LED_DRIVER_.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-led_driver.lss: led_driver.elf
+LED_DRIVER_.lss: LED_DRIVER_.elf
 	@echo 'Invoking: AVR Create Extended Listing'
-	-avr-objdump -h -S led_driver.elf  >"led_driver.lss"
+	-avr-objdump -h -S LED_DRIVER_.elf  >"LED_DRIVER_.lss"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-led_driver.hex: led_driver.elf
+LED_DRIVER_.hex: LED_DRIVER_.elf
 	@echo 'Create Flash image (ihex format)'
-	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex led_driver.elf  "led_driver.hex"
+	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex LED_DRIVER_.elf  "LED_DRIVER_.hex"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-sizedummy: led_driver.elf
+sizedummy: LED_DRIVER_.elf
 	@echo 'Invoking: Print Size'
-	-avr-size --format=avr --mcu=atmega32 led_driver.elf
+	-avr-size --format=avr --mcu=atmega32 LED_DRIVER_.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(FLASH_IMAGE)$(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) led_driver.elf
+	-$(RM) $(FLASH_IMAGE)$(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) LED_DRIVER_.elf
 	-@echo ' '
 
 secondary-outputs: $(LSS) $(FLASH_IMAGE) $(SIZEDUMMY)

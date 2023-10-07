@@ -30,47 +30,47 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 LSS += \
-led_driver.lss \
+SWITCH.lss \
 
 FLASH_IMAGE += \
-led_driver.hex \
+SWITCH.hex \
 
 SIZEDUMMY += \
 sizedummy \
 
 
 # All Target
-all: led_driver.elf secondary-outputs
+all: SWITCH.elf secondary-outputs
 
 # Tool invocations
-led_driver.elf: $(OBJS) $(USER_OBJS)
+SWITCH.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: AVR C Linker'
-	avr-gcc -Wl,-Map,led_driver.map -mmcu=atmega32 -o "led_driver.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	avr-gcc -Wl,-Map,SWITCH.map -mmcu=atmega32 -o "SWITCH.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-led_driver.lss: led_driver.elf
+SWITCH.lss: SWITCH.elf
 	@echo 'Invoking: AVR Create Extended Listing'
-	-avr-objdump -h -S led_driver.elf  >"led_driver.lss"
+	-avr-objdump -h -S SWITCH.elf  >"SWITCH.lss"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-led_driver.hex: led_driver.elf
+SWITCH.hex: SWITCH.elf
 	@echo 'Create Flash image (ihex format)'
-	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex led_driver.elf  "led_driver.hex"
+	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex SWITCH.elf  "SWITCH.hex"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-sizedummy: led_driver.elf
+sizedummy: SWITCH.elf
 	@echo 'Invoking: Print Size'
-	-avr-size --format=avr --mcu=atmega32 led_driver.elf
+	-avr-size --format=avr --mcu=atmega32 SWITCH.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(FLASH_IMAGE)$(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) led_driver.elf
+	-$(RM) $(FLASH_IMAGE)$(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) SWITCH.elf
 	-@echo ' '
 
 secondary-outputs: $(LSS) $(FLASH_IMAGE) $(SIZEDUMMY)
