@@ -12,7 +12,7 @@ int main(void){
 			ES_t Status= SWITCH_STATUS(D_u8PORTB ,D_u8PIN0 , &switch_stat);
 			if(Status==ES_OK){
 
-				if(switch_stat==0){
+				if(switch_stat==ON){
 
 				PIN_LED_ON(D_u8PORTA ,D_u8PIN0 );
 			}
