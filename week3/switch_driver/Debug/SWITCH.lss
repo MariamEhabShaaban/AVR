@@ -1,0 +1,674 @@
+
+SWITCH.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000400  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .stab         0000093c  00000000  00000000  00000454  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  2 .stabstr      00000803  00000000  00000000  00000d90  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   8:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  10:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  14:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  18:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  1c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  20:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  24:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  28:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  2c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  30:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  34:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  38:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  3c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  40:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  44:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  48:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  4c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  50:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+  60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
+  64:	0c 94 fe 01 	jmp	0x3fc	; 0x3fc <_exit>
+
+00000068 <__bad_interrupt>:
+  68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000006c <main>:
+#include "stdTypes.h"
+#include "errorStates.h"
+#include "switch_int.h"
+#include <util/delay.h>
+int main(void){
+  6c:	df 93       	push	r29
+  6e:	cf 93       	push	r28
+  70:	00 d0       	rcall	.+0      	; 0x72 <main+0x6>
+  72:	cd b7       	in	r28, 0x3d	; 61
+  74:	de b7       	in	r29, 0x3e	; 62
+	SWITCH_enuint();
+  76:	0e 94 5a 00 	call	0xb4	; 0xb4 <SWITCH_enuint>
+		 LED_enuint();
+  7a:	0e 94 22 01 	call	0x244	; 0x244 <LED_enuint>
+
+		u8 switch_stat=20;
+  7e:	84 e1       	ldi	r24, 0x14	; 20
+  80:	8a 83       	std	Y+2, r24	; 0x02
+		while(1){
+
+			ES_t Status= SWITCH_STATUS(D_u8PORTB ,D_u8PIN0 , &switch_stat);
+  82:	9e 01       	movw	r18, r28
+  84:	2e 5f       	subi	r18, 0xFE	; 254
+  86:	3f 4f       	sbci	r19, 0xFF	; 255
+  88:	81 e0       	ldi	r24, 0x01	; 1
+  8a:	60 e0       	ldi	r22, 0x00	; 0
+  8c:	a9 01       	movw	r20, r18
+  8e:	0e 94 84 00 	call	0x108	; 0x108 <SWITCH_STATUS>
+  92:	89 83       	std	Y+1, r24	; 0x01
+			if(Status==ES_OK){
+  94:	89 81       	ldd	r24, Y+1	; 0x01
+  96:	81 30       	cpi	r24, 0x01	; 1
+  98:	a1 f7       	brne	.-24     	; 0x82 <main+0x16>
+
+				if(switch_stat==ON){
+  9a:	8a 81       	ldd	r24, Y+2	; 0x02
+  9c:	88 23       	and	r24, r24
+  9e:	29 f4       	brne	.+10     	; 0xaa <main+0x3e>
+
+				PIN_LED_ON(D_u8PORTA ,D_u8PIN0 );
+  a0:	80 e0       	ldi	r24, 0x00	; 0
+  a2:	60 e0       	ldi	r22, 0x00	; 0
+  a4:	0e 94 4c 01 	call	0x298	; 0x298 <PIN_LED_ON>
+  a8:	ec cf       	rjmp	.-40     	; 0x82 <main+0x16>
+			}
+			   else{
+				PIN_LED_OFF(D_u8PORTA ,D_u8PIN0 );
+  aa:	80 e0       	ldi	r24, 0x00	; 0
+  ac:	60 e0       	ldi	r22, 0x00	; 0
+  ae:	0e 94 a5 01 	call	0x34a	; 0x34a <PIN_LED_OFF>
+  b2:	e7 cf       	rjmp	.-50     	; 0x82 <main+0x16>
+
+000000b4 <SWITCH_enuint>:
+
+
+
+
+
+ES_t SWITCH_enuint(void){
+  b4:	df 93       	push	r29
+  b6:	cf 93       	push	r28
+  b8:	0f 92       	push	r0
+  ba:	cd b7       	in	r28, 0x3d	; 61
+  bc:	de b7       	in	r29, 0x3e	; 62
+	ES_t local_enuerror=ES_NOK;
+  be:	19 82       	std	Y+1, r1	; 0x01
+	DDRA =CONC( PA_PIN7_DIR	, PA_PIN6_DIR, PA_PIN5_DIR	, PA_PIN4_DIR, PA_PIN3_DIR, PA_PIN2_DIR, PA_PIN1_DIR, PA_PIN0_DIR);
+  c0:	ea e3       	ldi	r30, 0x3A	; 58
+  c2:	f0 e0       	ldi	r31, 0x00	; 0
+  c4:	8f e7       	ldi	r24, 0x7F	; 127
+  c6:	80 83       	st	Z, r24
+		DDRB =CONC( PB_PIN7_DIR	, PB_PIN6_DIR, PB_PIN5_DIR	, PB_PIN4_DIR, PB_PIN3_DIR, PB_PIN2_DIR, PB_PIN1_DIR, PB_PIN0_DIR);
+  c8:	e7 e3       	ldi	r30, 0x37	; 55
+  ca:	f0 e0       	ldi	r31, 0x00	; 0
+  cc:	8e ef       	ldi	r24, 0xFE	; 254
+  ce:	80 83       	st	Z, r24
+		DDRC =CONC( PC_PIN7_DIR	, PC_PIN6_DIR, PC_PIN5_DIR	, PC_PIN4_DIR, PC_PIN3_DIR, PC_PIN2_DIR, PC_PIN1_DIR, PC_PIN0_DIR);
+  d0:	e4 e3       	ldi	r30, 0x34	; 52
+  d2:	f0 e0       	ldi	r31, 0x00	; 0
+  d4:	86 e9       	ldi	r24, 0x96	; 150
+  d6:	80 83       	st	Z, r24
+		DDRD =CONC( PD_PIN7_DIR	, PD_PIN6_DIR, PD_PIN5_DIR	, PD_PIN4_DIR, PD_PIN3_DIR, PD_PIN2_DIR, PD_PIN1_DIR, PD_PIN0_DIR);
+  d8:	e1 e3       	ldi	r30, 0x31	; 49
+  da:	f0 e0       	ldi	r31, 0x00	; 0
+  dc:	86 e9       	ldi	r24, 0x96	; 150
+  de:	80 83       	st	Z, r24
+		PORTA =CONC( PA_PIN7_VAL, PA_PIN6_VAL, PA_PIN5_VAL	, PA_PIN4_VAL, PA_PIN3_VAL, PA_PIN2_VAL, PA_PIN1_VAL, PA_PIN0_VAL);
+  e0:	eb e3       	ldi	r30, 0x3B	; 59
+  e2:	f0 e0       	ldi	r31, 0x00	; 0
+  e4:	10 82       	st	Z, r1
+		PORTB =CONC( PB_PIN7_VAL, PB_PIN6_VAL, PB_PIN5_VAL	, PB_PIN4_VAL, PB_PIN3_VAL, PB_PIN2_VAL, PB_PIN1_VAL, PB_PIN0_VAL);
+  e6:	e8 e3       	ldi	r30, 0x38	; 56
+  e8:	f0 e0       	ldi	r31, 0x00	; 0
+  ea:	81 e9       	ldi	r24, 0x91	; 145
+  ec:	80 83       	st	Z, r24
+		PORTC =CONC( PC_PIN7_VAL, PC_PIN6_VAL, PC_PIN5_VAL	, PC_PIN4_VAL, PC_PIN3_VAL, PC_PIN2_VAL, PC_PIN1_VAL, PC_PIN0_VAL);
+  ee:	e5 e3       	ldi	r30, 0x35	; 53
+  f0:	f0 e0       	ldi	r31, 0x00	; 0
+  f2:	10 82       	st	Z, r1
+		PORTD =CONC( PD_PIN7_VAL, PD_PIN6_VAL, PD_PIN5_VAL	, PD_PIN4_VAL, PD_PIN3_VAL, PD_PIN2_VAL, PD_PIN1_VAL, PD_PIN0_VAL);
+  f4:	e2 e3       	ldi	r30, 0x32	; 50
+  f6:	f0 e0       	ldi	r31, 0x00	; 0
+  f8:	10 82       	st	Z, r1
+
+	local_enuerror=ES_OK;
+  fa:	81 e0       	ldi	r24, 0x01	; 1
+  fc:	89 83       	std	Y+1, r24	; 0x01
+
+
+return local_enuerror;
+  fe:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 100:	0f 90       	pop	r0
+ 102:	cf 91       	pop	r28
+ 104:	df 91       	pop	r29
+ 106:	08 95       	ret
+
+00000108 <SWITCH_STATUS>:
+
+
+ES_t SWITCH_STATUS(u8 Copy_u8PortID ,u8 Copy_u8PinID , u8* Copy_pu8Status){
+ 108:	df 93       	push	r29
+ 10a:	cf 93       	push	r28
+ 10c:	cd b7       	in	r28, 0x3d	; 61
+ 10e:	de b7       	in	r29, 0x3e	; 62
+ 110:	27 97       	sbiw	r28, 0x07	; 7
+ 112:	0f b6       	in	r0, 0x3f	; 63
+ 114:	f8 94       	cli
+ 116:	de bf       	out	0x3e, r29	; 62
+ 118:	0f be       	out	0x3f, r0	; 63
+ 11a:	cd bf       	out	0x3d, r28	; 61
+ 11c:	8a 83       	std	Y+2, r24	; 0x02
+ 11e:	6b 83       	std	Y+3, r22	; 0x03
+ 120:	5d 83       	std	Y+5, r21	; 0x05
+ 122:	4c 83       	std	Y+4, r20	; 0x04
+
+
+	ES_t local_enuerror=ES_NOK;
+ 124:	19 82       	std	Y+1, r1	; 0x01
+			if(  Copy_pu8Status !=NULL){
+ 126:	8c 81       	ldd	r24, Y+4	; 0x04
+ 128:	9d 81       	ldd	r25, Y+5	; 0x05
+ 12a:	00 97       	sbiw	r24, 0x00	; 0
+ 12c:	09 f4       	brne	.+2      	; 0x130 <SWITCH_STATUS+0x28>
+ 12e:	7e c0       	rjmp	.+252    	; 0x22c <SWITCH_STATUS+0x124>
+			if( Copy_u8PortID<=D_u8PORTD &&Copy_u8PinID<=D_u8PIN7){
+ 130:	8a 81       	ldd	r24, Y+2	; 0x02
+ 132:	84 30       	cpi	r24, 0x04	; 4
+ 134:	08 f0       	brcs	.+2      	; 0x138 <SWITCH_STATUS+0x30>
+ 136:	77 c0       	rjmp	.+238    	; 0x226 <SWITCH_STATUS+0x11e>
+ 138:	8b 81       	ldd	r24, Y+3	; 0x03
+ 13a:	88 30       	cpi	r24, 0x08	; 8
+ 13c:	08 f0       	brcs	.+2      	; 0x140 <SWITCH_STATUS+0x38>
+ 13e:	73 c0       	rjmp	.+230    	; 0x226 <SWITCH_STATUS+0x11e>
+
+						 local_enuerror=ES_OK;
+ 140:	81 e0       	ldi	r24, 0x01	; 1
+ 142:	89 83       	std	Y+1, r24	; 0x01
+						 switch(Copy_u8PortID){
+ 144:	8a 81       	ldd	r24, Y+2	; 0x02
+ 146:	28 2f       	mov	r18, r24
+ 148:	30 e0       	ldi	r19, 0x00	; 0
+ 14a:	3f 83       	std	Y+7, r19	; 0x07
+ 14c:	2e 83       	std	Y+6, r18	; 0x06
+ 14e:	4e 81       	ldd	r20, Y+6	; 0x06
+ 150:	5f 81       	ldd	r21, Y+7	; 0x07
+ 152:	41 30       	cpi	r20, 0x01	; 1
+ 154:	51 05       	cpc	r21, r1
+ 156:	59 f1       	breq	.+86     	; 0x1ae <SWITCH_STATUS+0xa6>
+ 158:	8e 81       	ldd	r24, Y+6	; 0x06
+ 15a:	9f 81       	ldd	r25, Y+7	; 0x07
+ 15c:	82 30       	cpi	r24, 0x02	; 2
+ 15e:	91 05       	cpc	r25, r1
+ 160:	34 f4       	brge	.+12     	; 0x16e <SWITCH_STATUS+0x66>
+ 162:	2e 81       	ldd	r18, Y+6	; 0x06
+ 164:	3f 81       	ldd	r19, Y+7	; 0x07
+ 166:	21 15       	cp	r18, r1
+ 168:	31 05       	cpc	r19, r1
+ 16a:	69 f0       	breq	.+26     	; 0x186 <SWITCH_STATUS+0x7e>
+ 16c:	61 c0       	rjmp	.+194    	; 0x230 <SWITCH_STATUS+0x128>
+ 16e:	4e 81       	ldd	r20, Y+6	; 0x06
+ 170:	5f 81       	ldd	r21, Y+7	; 0x07
+ 172:	42 30       	cpi	r20, 0x02	; 2
+ 174:	51 05       	cpc	r21, r1
+ 176:	79 f1       	breq	.+94     	; 0x1d6 <SWITCH_STATUS+0xce>
+ 178:	8e 81       	ldd	r24, Y+6	; 0x06
+ 17a:	9f 81       	ldd	r25, Y+7	; 0x07
+ 17c:	83 30       	cpi	r24, 0x03	; 3
+ 17e:	91 05       	cpc	r25, r1
+ 180:	09 f4       	brne	.+2      	; 0x184 <SWITCH_STATUS+0x7c>
+ 182:	3d c0       	rjmp	.+122    	; 0x1fe <SWITCH_STATUS+0xf6>
+ 184:	55 c0       	rjmp	.+170    	; 0x230 <SWITCH_STATUS+0x128>
+						 case DIO_PORTA:
+							 * Copy_pu8Status=(PINA>>Copy_u8PinID)&HIGH;
+ 186:	e9 e3       	ldi	r30, 0x39	; 57
+ 188:	f0 e0       	ldi	r31, 0x00	; 0
+ 18a:	80 81       	ld	r24, Z
+ 18c:	28 2f       	mov	r18, r24
+ 18e:	30 e0       	ldi	r19, 0x00	; 0
+ 190:	8b 81       	ldd	r24, Y+3	; 0x03
+ 192:	88 2f       	mov	r24, r24
+ 194:	90 e0       	ldi	r25, 0x00	; 0
+ 196:	a9 01       	movw	r20, r18
+ 198:	02 c0       	rjmp	.+4      	; 0x19e <SWITCH_STATUS+0x96>
+ 19a:	55 95       	asr	r21
+ 19c:	47 95       	ror	r20
+ 19e:	8a 95       	dec	r24
+ 1a0:	e2 f7       	brpl	.-8      	; 0x19a <SWITCH_STATUS+0x92>
+ 1a2:	ca 01       	movw	r24, r20
+ 1a4:	81 70       	andi	r24, 0x01	; 1
+ 1a6:	ec 81       	ldd	r30, Y+4	; 0x04
+ 1a8:	fd 81       	ldd	r31, Y+5	; 0x05
+ 1aa:	80 83       	st	Z, r24
+ 1ac:	41 c0       	rjmp	.+130    	; 0x230 <SWITCH_STATUS+0x128>
+							 break;
+						 case DIO_PORTB:
+							 * Copy_pu8Status=(PINB>>Copy_u8PinID)&HIGH;
+ 1ae:	e6 e3       	ldi	r30, 0x36	; 54
+ 1b0:	f0 e0       	ldi	r31, 0x00	; 0
+ 1b2:	80 81       	ld	r24, Z
+ 1b4:	28 2f       	mov	r18, r24
+ 1b6:	30 e0       	ldi	r19, 0x00	; 0
+ 1b8:	8b 81       	ldd	r24, Y+3	; 0x03
+ 1ba:	88 2f       	mov	r24, r24
+ 1bc:	90 e0       	ldi	r25, 0x00	; 0
+ 1be:	a9 01       	movw	r20, r18
+ 1c0:	02 c0       	rjmp	.+4      	; 0x1c6 <SWITCH_STATUS+0xbe>
+ 1c2:	55 95       	asr	r21
+ 1c4:	47 95       	ror	r20
+ 1c6:	8a 95       	dec	r24
+ 1c8:	e2 f7       	brpl	.-8      	; 0x1c2 <SWITCH_STATUS+0xba>
+ 1ca:	ca 01       	movw	r24, r20
+ 1cc:	81 70       	andi	r24, 0x01	; 1
+ 1ce:	ec 81       	ldd	r30, Y+4	; 0x04
+ 1d0:	fd 81       	ldd	r31, Y+5	; 0x05
+ 1d2:	80 83       	st	Z, r24
+ 1d4:	2d c0       	rjmp	.+90     	; 0x230 <SWITCH_STATUS+0x128>
+									 break;
+						 case DIO_PORTC:
+							 * Copy_pu8Status=(PINC>>Copy_u8PinID)&HIGH;
+ 1d6:	e3 e3       	ldi	r30, 0x33	; 51
+ 1d8:	f0 e0       	ldi	r31, 0x00	; 0
+ 1da:	80 81       	ld	r24, Z
+ 1dc:	28 2f       	mov	r18, r24
+ 1de:	30 e0       	ldi	r19, 0x00	; 0
+ 1e0:	8b 81       	ldd	r24, Y+3	; 0x03
+ 1e2:	88 2f       	mov	r24, r24
+ 1e4:	90 e0       	ldi	r25, 0x00	; 0
+ 1e6:	a9 01       	movw	r20, r18
+ 1e8:	02 c0       	rjmp	.+4      	; 0x1ee <SWITCH_STATUS+0xe6>
+ 1ea:	55 95       	asr	r21
+ 1ec:	47 95       	ror	r20
+ 1ee:	8a 95       	dec	r24
+ 1f0:	e2 f7       	brpl	.-8      	; 0x1ea <SWITCH_STATUS+0xe2>
+ 1f2:	ca 01       	movw	r24, r20
+ 1f4:	81 70       	andi	r24, 0x01	; 1
+ 1f6:	ec 81       	ldd	r30, Y+4	; 0x04
+ 1f8:	fd 81       	ldd	r31, Y+5	; 0x05
+ 1fa:	80 83       	st	Z, r24
+ 1fc:	19 c0       	rjmp	.+50     	; 0x230 <SWITCH_STATUS+0x128>
+									 break;
+						 case DIO_PORTD:
+							 * Copy_pu8Status=(PIND>>Copy_u8PinID)&HIGH;
+ 1fe:	e0 e3       	ldi	r30, 0x30	; 48
+ 200:	f0 e0       	ldi	r31, 0x00	; 0
+ 202:	80 81       	ld	r24, Z
+ 204:	28 2f       	mov	r18, r24
+ 206:	30 e0       	ldi	r19, 0x00	; 0
+ 208:	8b 81       	ldd	r24, Y+3	; 0x03
+ 20a:	88 2f       	mov	r24, r24
+ 20c:	90 e0       	ldi	r25, 0x00	; 0
+ 20e:	a9 01       	movw	r20, r18
+ 210:	02 c0       	rjmp	.+4      	; 0x216 <SWITCH_STATUS+0x10e>
+ 212:	55 95       	asr	r21
+ 214:	47 95       	ror	r20
+ 216:	8a 95       	dec	r24
+ 218:	e2 f7       	brpl	.-8      	; 0x212 <SWITCH_STATUS+0x10a>
+ 21a:	ca 01       	movw	r24, r20
+ 21c:	81 70       	andi	r24, 0x01	; 1
+ 21e:	ec 81       	ldd	r30, Y+4	; 0x04
+ 220:	fd 81       	ldd	r31, Y+5	; 0x05
+ 222:	80 83       	st	Z, r24
+ 224:	05 c0       	rjmp	.+10     	; 0x230 <SWITCH_STATUS+0x128>
+
+					}
+
+					else
+						{
+						local_enuerror = ES_OUT_OF_RANGE;
+ 226:	83 e0       	ldi	r24, 0x03	; 3
+ 228:	89 83       	std	Y+1, r24	; 0x01
+ 22a:	02 c0       	rjmp	.+4      	; 0x230 <SWITCH_STATUS+0x128>
+						}
+			}
+			else{
+				local_enuerror = ES_NULLPOINTER;
+ 22c:	82 e0       	ldi	r24, 0x02	; 2
+ 22e:	89 83       	std	Y+1, r24	; 0x01
+			}
+
+		return local_enuerror;
+ 230:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 232:	27 96       	adiw	r28, 0x07	; 7
+ 234:	0f b6       	in	r0, 0x3f	; 63
+ 236:	f8 94       	cli
+ 238:	de bf       	out	0x3e, r29	; 62
+ 23a:	0f be       	out	0x3f, r0	; 63
+ 23c:	cd bf       	out	0x3d, r28	; 61
+ 23e:	cf 91       	pop	r28
+ 240:	df 91       	pop	r29
+ 242:	08 95       	ret
+
+00000244 <LED_enuint>:
+
+
+
+
+// led  help to chec uf switch work well or not
+ES_t LED_enuint (void){
+ 244:	df 93       	push	r29
+ 246:	cf 93       	push	r28
+ 248:	0f 92       	push	r0
+ 24a:	cd b7       	in	r28, 0x3d	; 61
+ 24c:	de b7       	in	r29, 0x3e	; 62
+	ES_t local_enuerror=ES_NOK;
+ 24e:	19 82       	std	Y+1, r1	; 0x01
+	DDRA =CONC( PA_PIN7_DIR	, PA_PIN6_DIR, PA_PIN5_DIR	, PA_PIN4_DIR, PA_PIN3_DIR, PA_PIN2_DIR, PA_PIN1_DIR, PA_PIN0_DIR);
+ 250:	ea e3       	ldi	r30, 0x3A	; 58
+ 252:	f0 e0       	ldi	r31, 0x00	; 0
+ 254:	8f e7       	ldi	r24, 0x7F	; 127
+ 256:	80 83       	st	Z, r24
+		DDRB =CONC( PB_PIN7_DIR	, PB_PIN6_DIR, PB_PIN5_DIR	, PB_PIN4_DIR, PB_PIN3_DIR, PB_PIN2_DIR, PB_PIN1_DIR, PB_PIN0_DIR);
+ 258:	e7 e3       	ldi	r30, 0x37	; 55
+ 25a:	f0 e0       	ldi	r31, 0x00	; 0
+ 25c:	8e ef       	ldi	r24, 0xFE	; 254
+ 25e:	80 83       	st	Z, r24
+		DDRC =CONC( PC_PIN7_DIR	, PC_PIN6_DIR, PC_PIN5_DIR	, PC_PIN4_DIR, PC_PIN3_DIR, PC_PIN2_DIR, PC_PIN1_DIR, PC_PIN0_DIR);
+ 260:	e4 e3       	ldi	r30, 0x34	; 52
+ 262:	f0 e0       	ldi	r31, 0x00	; 0
+ 264:	86 e9       	ldi	r24, 0x96	; 150
+ 266:	80 83       	st	Z, r24
+		DDRD =CONC( PD_PIN7_DIR	, PD_PIN6_DIR, PD_PIN5_DIR	, PD_PIN4_DIR, PD_PIN3_DIR, PD_PIN2_DIR, PD_PIN1_DIR, PD_PIN0_DIR);
+ 268:	e1 e3       	ldi	r30, 0x31	; 49
+ 26a:	f0 e0       	ldi	r31, 0x00	; 0
+ 26c:	86 e9       	ldi	r24, 0x96	; 150
+ 26e:	80 83       	st	Z, r24
+		PORTA =CONC( PA_PIN7_VAL, PA_PIN6_VAL, PA_PIN5_VAL	, PA_PIN4_VAL, PA_PIN3_VAL, PA_PIN2_VAL, PA_PIN1_VAL, PA_PIN0_VAL);
+ 270:	eb e3       	ldi	r30, 0x3B	; 59
+ 272:	f0 e0       	ldi	r31, 0x00	; 0
+ 274:	10 82       	st	Z, r1
+		PORTB =CONC( PB_PIN7_VAL, PB_PIN6_VAL, PB_PIN5_VAL	, PB_PIN4_VAL, PB_PIN3_VAL, PB_PIN2_VAL, PB_PIN1_VAL, PB_PIN0_VAL);
+ 276:	e8 e3       	ldi	r30, 0x38	; 56
+ 278:	f0 e0       	ldi	r31, 0x00	; 0
+ 27a:	81 e9       	ldi	r24, 0x91	; 145
+ 27c:	80 83       	st	Z, r24
+		PORTC =CONC( PC_PIN7_VAL, PC_PIN6_VAL, PC_PIN5_VAL	, PC_PIN4_VAL, PC_PIN3_VAL, PC_PIN2_VAL, PC_PIN1_VAL, PC_PIN0_VAL);
+ 27e:	e5 e3       	ldi	r30, 0x35	; 53
+ 280:	f0 e0       	ldi	r31, 0x00	; 0
+ 282:	10 82       	st	Z, r1
+		PORTD =CONC( PD_PIN7_VAL, PD_PIN6_VAL, PD_PIN5_VAL	, PD_PIN4_VAL, PD_PIN3_VAL, PD_PIN2_VAL, PD_PIN1_VAL, PD_PIN0_VAL);
+ 284:	e2 e3       	ldi	r30, 0x32	; 50
+ 286:	f0 e0       	ldi	r31, 0x00	; 0
+ 288:	10 82       	st	Z, r1
+
+	local_enuerror=ES_OK;
+ 28a:	81 e0       	ldi	r24, 0x01	; 1
+ 28c:	89 83       	std	Y+1, r24	; 0x01
+
+
+return local_enuerror;
+ 28e:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 290:	0f 90       	pop	r0
+ 292:	cf 91       	pop	r28
+ 294:	df 91       	pop	r29
+ 296:	08 95       	ret
+
+00000298 <PIN_LED_ON>:
+
+ES_t PIN_LED_ON(u8 Copy_u8PortID ,u8 Copy_u8PinID ){
+ 298:	df 93       	push	r29
+ 29a:	cf 93       	push	r28
+ 29c:	00 d0       	rcall	.+0      	; 0x29e <PIN_LED_ON+0x6>
+ 29e:	00 d0       	rcall	.+0      	; 0x2a0 <PIN_LED_ON+0x8>
+ 2a0:	0f 92       	push	r0
+ 2a2:	cd b7       	in	r28, 0x3d	; 61
+ 2a4:	de b7       	in	r29, 0x3e	; 62
+ 2a6:	8a 83       	std	Y+2, r24	; 0x02
+ 2a8:	6b 83       	std	Y+3, r22	; 0x03
+	ES_t local_enuerror=ES_NOK;
+ 2aa:	19 82       	std	Y+1, r1	; 0x01
+
+	if(Copy_u8PortID<=D_u8PORTD && Copy_u8PinID<=D_u8PIN7){
+ 2ac:	8a 81       	ldd	r24, Y+2	; 0x02
+ 2ae:	84 30       	cpi	r24, 0x04	; 4
+ 2b0:	08 f0       	brcs	.+2      	; 0x2b4 <PIN_LED_ON+0x1c>
+ 2b2:	40 c0       	rjmp	.+128    	; 0x334 <PIN_LED_ON+0x9c>
+ 2b4:	8b 81       	ldd	r24, Y+3	; 0x03
+ 2b6:	88 30       	cpi	r24, 0x08	; 8
+ 2b8:	e8 f5       	brcc	.+122    	; 0x334 <PIN_LED_ON+0x9c>
+				local_enuerror=ES_OK;
+ 2ba:	81 e0       	ldi	r24, 0x01	; 1
+ 2bc:	89 83       	std	Y+1, r24	; 0x01
+				switch(Copy_u8PortID){
+ 2be:	8a 81       	ldd	r24, Y+2	; 0x02
+ 2c0:	28 2f       	mov	r18, r24
+ 2c2:	30 e0       	ldi	r19, 0x00	; 0
+ 2c4:	3d 83       	std	Y+5, r19	; 0x05
+ 2c6:	2c 83       	std	Y+4, r18	; 0x04
+ 2c8:	8c 81       	ldd	r24, Y+4	; 0x04
+ 2ca:	9d 81       	ldd	r25, Y+5	; 0x05
+ 2cc:	81 30       	cpi	r24, 0x01	; 1
+ 2ce:	91 05       	cpc	r25, r1
+ 2d0:	e1 f0       	breq	.+56     	; 0x30a <PIN_LED_ON+0x72>
+ 2d2:	2c 81       	ldd	r18, Y+4	; 0x04
+ 2d4:	3d 81       	ldd	r19, Y+5	; 0x05
+ 2d6:	22 30       	cpi	r18, 0x02	; 2
+ 2d8:	31 05       	cpc	r19, r1
+ 2da:	2c f4       	brge	.+10     	; 0x2e6 <PIN_LED_ON+0x4e>
+ 2dc:	8c 81       	ldd	r24, Y+4	; 0x04
+ 2de:	9d 81       	ldd	r25, Y+5	; 0x05
+ 2e0:	00 97       	sbiw	r24, 0x00	; 0
+ 2e2:	61 f0       	breq	.+24     	; 0x2fc <PIN_LED_ON+0x64>
+ 2e4:	29 c0       	rjmp	.+82     	; 0x338 <PIN_LED_ON+0xa0>
+ 2e6:	2c 81       	ldd	r18, Y+4	; 0x04
+ 2e8:	3d 81       	ldd	r19, Y+5	; 0x05
+ 2ea:	22 30       	cpi	r18, 0x02	; 2
+ 2ec:	31 05       	cpc	r19, r1
+ 2ee:	a1 f0       	breq	.+40     	; 0x318 <PIN_LED_ON+0x80>
+ 2f0:	8c 81       	ldd	r24, Y+4	; 0x04
+ 2f2:	9d 81       	ldd	r25, Y+5	; 0x05
+ 2f4:	83 30       	cpi	r24, 0x03	; 3
+ 2f6:	91 05       	cpc	r25, r1
+ 2f8:	b1 f0       	breq	.+44     	; 0x326 <PIN_LED_ON+0x8e>
+ 2fa:	1e c0       	rjmp	.+60     	; 0x338 <PIN_LED_ON+0xa0>
+				case DIO_PORTA:
+
+					PORTA |=(ON<<Copy_u8PinID);
+ 2fc:	eb e3       	ldi	r30, 0x3B	; 59
+ 2fe:	f0 e0       	ldi	r31, 0x00	; 0
+ 300:	ab e3       	ldi	r26, 0x3B	; 59
+ 302:	b0 e0       	ldi	r27, 0x00	; 0
+ 304:	8c 91       	ld	r24, X
+ 306:	80 83       	st	Z, r24
+ 308:	17 c0       	rjmp	.+46     	; 0x338 <PIN_LED_ON+0xa0>
+
+				break;
+				case DIO_PORTB:
+					PORTB |=(ON<<Copy_u8PinID);
+ 30a:	e8 e3       	ldi	r30, 0x38	; 56
+ 30c:	f0 e0       	ldi	r31, 0x00	; 0
+ 30e:	a8 e3       	ldi	r26, 0x38	; 56
+ 310:	b0 e0       	ldi	r27, 0x00	; 0
+ 312:	8c 91       	ld	r24, X
+ 314:	80 83       	st	Z, r24
+ 316:	10 c0       	rjmp	.+32     	; 0x338 <PIN_LED_ON+0xa0>
+						break;
+				case DIO_PORTC:
+					PORTC |=(ON<<Copy_u8PinID);
+ 318:	e5 e3       	ldi	r30, 0x35	; 53
+ 31a:	f0 e0       	ldi	r31, 0x00	; 0
+ 31c:	a5 e3       	ldi	r26, 0x35	; 53
+ 31e:	b0 e0       	ldi	r27, 0x00	; 0
+ 320:	8c 91       	ld	r24, X
+ 322:	80 83       	st	Z, r24
+ 324:	09 c0       	rjmp	.+18     	; 0x338 <PIN_LED_ON+0xa0>
+						break;
+				case DIO_PORTD:
+					PORTD |=(ON<<Copy_u8PinID);
+ 326:	e2 e3       	ldi	r30, 0x32	; 50
+ 328:	f0 e0       	ldi	r31, 0x00	; 0
+ 32a:	a2 e3       	ldi	r26, 0x32	; 50
+ 32c:	b0 e0       	ldi	r27, 0x00	; 0
+ 32e:	8c 91       	ld	r24, X
+ 330:	80 83       	st	Z, r24
+ 332:	02 c0       	rjmp	.+4      	; 0x338 <PIN_LED_ON+0xa0>
+
+
+			}
+			else
+				{
+				local_enuerror = ES_OUT_OF_RANGE;
+ 334:	83 e0       	ldi	r24, 0x03	; 3
+ 336:	89 83       	std	Y+1, r24	; 0x01
+				}
+	return local_enuerror;
+ 338:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 33a:	0f 90       	pop	r0
+ 33c:	0f 90       	pop	r0
+ 33e:	0f 90       	pop	r0
+ 340:	0f 90       	pop	r0
+ 342:	0f 90       	pop	r0
+ 344:	cf 91       	pop	r28
+ 346:	df 91       	pop	r29
+ 348:	08 95       	ret
+
+0000034a <PIN_LED_OFF>:
+ES_t PIN_LED_OFF(u8 Copy_u8PortID ,u8 Copy_u8PinID ){
+ 34a:	df 93       	push	r29
+ 34c:	cf 93       	push	r28
+ 34e:	00 d0       	rcall	.+0      	; 0x350 <PIN_LED_OFF+0x6>
+ 350:	00 d0       	rcall	.+0      	; 0x352 <PIN_LED_OFF+0x8>
+ 352:	0f 92       	push	r0
+ 354:	cd b7       	in	r28, 0x3d	; 61
+ 356:	de b7       	in	r29, 0x3e	; 62
+ 358:	8a 83       	std	Y+2, r24	; 0x02
+ 35a:	6b 83       	std	Y+3, r22	; 0x03
+
+	ES_t local_enuerror=ES_NOK;
+ 35c:	19 82       	std	Y+1, r1	; 0x01
+
+		if(Copy_u8PortID<=D_u8PORTD && Copy_u8PinID<=D_u8PIN7){
+ 35e:	8a 81       	ldd	r24, Y+2	; 0x02
+ 360:	84 30       	cpi	r24, 0x04	; 4
+ 362:	08 f0       	brcs	.+2      	; 0x366 <PIN_LED_OFF+0x1c>
+ 364:	40 c0       	rjmp	.+128    	; 0x3e6 <PIN_LED_OFF+0x9c>
+ 366:	8b 81       	ldd	r24, Y+3	; 0x03
+ 368:	88 30       	cpi	r24, 0x08	; 8
+ 36a:	e8 f5       	brcc	.+122    	; 0x3e6 <PIN_LED_OFF+0x9c>
+					local_enuerror=ES_OK;
+ 36c:	81 e0       	ldi	r24, 0x01	; 1
+ 36e:	89 83       	std	Y+1, r24	; 0x01
+					switch(Copy_u8PortID){
+ 370:	8a 81       	ldd	r24, Y+2	; 0x02
+ 372:	28 2f       	mov	r18, r24
+ 374:	30 e0       	ldi	r19, 0x00	; 0
+ 376:	3d 83       	std	Y+5, r19	; 0x05
+ 378:	2c 83       	std	Y+4, r18	; 0x04
+ 37a:	8c 81       	ldd	r24, Y+4	; 0x04
+ 37c:	9d 81       	ldd	r25, Y+5	; 0x05
+ 37e:	81 30       	cpi	r24, 0x01	; 1
+ 380:	91 05       	cpc	r25, r1
+ 382:	e1 f0       	breq	.+56     	; 0x3bc <PIN_LED_OFF+0x72>
+ 384:	2c 81       	ldd	r18, Y+4	; 0x04
+ 386:	3d 81       	ldd	r19, Y+5	; 0x05
+ 388:	22 30       	cpi	r18, 0x02	; 2
+ 38a:	31 05       	cpc	r19, r1
+ 38c:	2c f4       	brge	.+10     	; 0x398 <PIN_LED_OFF+0x4e>
+ 38e:	8c 81       	ldd	r24, Y+4	; 0x04
+ 390:	9d 81       	ldd	r25, Y+5	; 0x05
+ 392:	00 97       	sbiw	r24, 0x00	; 0
+ 394:	61 f0       	breq	.+24     	; 0x3ae <PIN_LED_OFF+0x64>
+ 396:	29 c0       	rjmp	.+82     	; 0x3ea <PIN_LED_OFF+0xa0>
+ 398:	2c 81       	ldd	r18, Y+4	; 0x04
+ 39a:	3d 81       	ldd	r19, Y+5	; 0x05
+ 39c:	22 30       	cpi	r18, 0x02	; 2
+ 39e:	31 05       	cpc	r19, r1
+ 3a0:	a1 f0       	breq	.+40     	; 0x3ca <PIN_LED_OFF+0x80>
+ 3a2:	8c 81       	ldd	r24, Y+4	; 0x04
+ 3a4:	9d 81       	ldd	r25, Y+5	; 0x05
+ 3a6:	83 30       	cpi	r24, 0x03	; 3
+ 3a8:	91 05       	cpc	r25, r1
+ 3aa:	b1 f0       	breq	.+44     	; 0x3d8 <PIN_LED_OFF+0x8e>
+ 3ac:	1e c0       	rjmp	.+60     	; 0x3ea <PIN_LED_OFF+0xa0>
+					case DIO_PORTA:
+
+						PORTA &=~(ON<<Copy_u8PinID);
+ 3ae:	eb e3       	ldi	r30, 0x3B	; 59
+ 3b0:	f0 e0       	ldi	r31, 0x00	; 0
+ 3b2:	ab e3       	ldi	r26, 0x3B	; 59
+ 3b4:	b0 e0       	ldi	r27, 0x00	; 0
+ 3b6:	8c 91       	ld	r24, X
+ 3b8:	80 83       	st	Z, r24
+ 3ba:	17 c0       	rjmp	.+46     	; 0x3ea <PIN_LED_OFF+0xa0>
+
+					break;
+					case DIO_PORTB:
+						PORTB&=~(ON<<Copy_u8PinID);
+ 3bc:	e8 e3       	ldi	r30, 0x38	; 56
+ 3be:	f0 e0       	ldi	r31, 0x00	; 0
+ 3c0:	a8 e3       	ldi	r26, 0x38	; 56
+ 3c2:	b0 e0       	ldi	r27, 0x00	; 0
+ 3c4:	8c 91       	ld	r24, X
+ 3c6:	80 83       	st	Z, r24
+ 3c8:	10 c0       	rjmp	.+32     	; 0x3ea <PIN_LED_OFF+0xa0>
+							break;
+					case DIO_PORTC:
+						PORTC &=~(ON<<Copy_u8PinID);
+ 3ca:	e5 e3       	ldi	r30, 0x35	; 53
+ 3cc:	f0 e0       	ldi	r31, 0x00	; 0
+ 3ce:	a5 e3       	ldi	r26, 0x35	; 53
+ 3d0:	b0 e0       	ldi	r27, 0x00	; 0
+ 3d2:	8c 91       	ld	r24, X
+ 3d4:	80 83       	st	Z, r24
+ 3d6:	09 c0       	rjmp	.+18     	; 0x3ea <PIN_LED_OFF+0xa0>
+							break;
+					case DIO_PORTD:
+						PORTD&=~(ON<<Copy_u8PinID);
+ 3d8:	e2 e3       	ldi	r30, 0x32	; 50
+ 3da:	f0 e0       	ldi	r31, 0x00	; 0
+ 3dc:	a2 e3       	ldi	r26, 0x32	; 50
+ 3de:	b0 e0       	ldi	r27, 0x00	; 0
+ 3e0:	8c 91       	ld	r24, X
+ 3e2:	80 83       	st	Z, r24
+ 3e4:	02 c0       	rjmp	.+4      	; 0x3ea <PIN_LED_OFF+0xa0>
+
+
+				}
+				else
+				{
+				local_enuerror = ES_OUT_OF_RANGE;
+ 3e6:	83 e0       	ldi	r24, 0x03	; 3
+ 3e8:	89 83       	std	Y+1, r24	; 0x01
+				}
+		return local_enuerror;
+ 3ea:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 3ec:	0f 90       	pop	r0
+ 3ee:	0f 90       	pop	r0
+ 3f0:	0f 90       	pop	r0
+ 3f2:	0f 90       	pop	r0
+ 3f4:	0f 90       	pop	r0
+ 3f6:	cf 91       	pop	r28
+ 3f8:	df 91       	pop	r29
+ 3fa:	08 95       	ret
+
+000003fc <_exit>:
+ 3fc:	f8 94       	cli
+
+000003fe <__stop_program>:
+ 3fe:	ff cf       	rjmp	.-2      	; 0x3fe <__stop_program>
