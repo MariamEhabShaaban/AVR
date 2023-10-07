@@ -56,7 +56,7 @@
 #define PULL_DOWN 0
 #define PULL_UP 1
 #define LOW 0
-#define HIGH 0
+#define HIGH 1
 
 #define CONC_HELP(b7,b6,b5,b4,b3,b2,b1,b0) 0b##b7##b6##b5##b4##b3##b2##b1##b0
 #define CONC(b7,b6,b5,b4,b3,b2,b1,b0)     CONC_HELP(b7,b6,b5,b4,b3,b2,b1,b0)
