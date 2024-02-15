@@ -12,10 +12,16 @@
 #include "TH_priv.h"
 ES_t TH_enuInit(){
 	ES_t Local_enuErrorstate = ES_NOK;
-#if positive_pin_channel ==ADC0 && negative_pin_channel==NOT_CONNECTED
-     DIO_enuSetPinDirection(DIO_u8PORTA,ADC0,DIO_u8INPUT);
+#if positive_pin_channel <=ADC7 && negative_pin_channel==NOT_CONNECTED
+     DIO_enuSetPinDirection(DIO_u8PORTA,positive_pin_channel,DIO_u8INPUT);
      Local_enuErrorstate = ES_OK;
-#else
+#elif negative_pin_channel <=ADC7 && postive_pin_channel==NOT_CONNECTED
+     DIO_enuSetPinDirection(DIO_u8PORTA,negative_pin_channel,DIO_u8INPUT);
+     Local_enuErrorstate = ES_OK;
+#elif positive_pin_channel <=ADC7 && negative_pin_channel<=ADC7
+     DIO_enuSetPinDirection(DIO_u8PORTA,positive_pin_channel,DIO_u8INPUT);
+     DIO_enuSetPinDirection(DIO_u8PORTA,negative_pin_channel,DIO_u8INPUT);
+         Local_enuErrorstate = ES_OK;
 #error " ERROR "
 #endif
 			return Local_enuErrorstate;

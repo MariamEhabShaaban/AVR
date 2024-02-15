@@ -21,8 +21,6 @@ LCD_enuInit();
 TH_enuInit();
 ADC_enuSelectChannel(0);
 ADC_enuEnable();
-ADC_enuDisableTriggeringMode();
-ADC_enuDisableInterruptMode();
 LCD_enuSendCommand(0x0c);
 LCD_enuSendString("Temp =");
 

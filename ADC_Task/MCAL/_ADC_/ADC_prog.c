@@ -30,7 +30,26 @@ static void *ADC_Gparameter=NULL;
 #endif
 
 
-#if prescalar == DIV_FACT128
+
+
+#if prescalar == DIV_FACT2
+	ADCSRA &=~ (7<<0);
+#elif prescalar == DIV_FACT4
+	ADCSRA &=~ (7<<0);
+	ADCSRA |= (2<<0);
+#elif prescalar == DIV_FACT8
+	ADCSRA &=~ (7<<0);
+	ADCSRA |= (3<<0);
+#elif prescalar == DIV_FACT16
+	ADCSRA &=~ (7<<0);
+	ADCSRA |= (4<<0);
+#elif prescalar == DIV_FACT32
+	ADCSRA &=~ (7<<0);
+	ADCSRA |= (5<<0);
+#elif prescalar == DIV_FACT64
+	ADCSRA &=~ (7<<0);
+	ADCSRA |= (6<<0);
+#elif prescalar == DIV_FACT128
 	ADCSRA |= (7<<0);
 #endif
 
@@ -111,6 +130,11 @@ ES_t ADC_enuEnableTriggeringMode(u8 Copy_Trigger_Source){
 		SFIOR|=(2<<5);
 
 		break;
+	case Analog_Comparator:
+			SFIOR&=~(7<<5);
+			SFIOR|=(1<<5);
+
+			break;
 	}
 	ADCSRA |=(1<<5);
 

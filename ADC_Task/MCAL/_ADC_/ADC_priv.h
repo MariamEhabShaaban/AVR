@@ -10,8 +10,8 @@
 
 #define ADMUX  (*(u8*)0x27)
 #define ADCSRA (*(u8*)0x26)
-#define ADCH   (*(volatile s8*)0x25)
-#define ADCL   (*(volatile s8*)0x24)
+#define ADCH   (*(volatile u8*)0x25)
+#define ADCL   (*(volatile u8*)0x24)
 
 #define ADCADJ (*(volatile u16*)0x24)//ADCH ADCL
 #define SFIOR  (*(u8*)0x50)
